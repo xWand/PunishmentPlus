@@ -1,0 +1,27 @@
+########                                       #
+#       #                                      #
+#       #                         #            #
+#       #   #      #    ######        #####    ########         #
+########    #      #    #     #      #         #      #         #
+#           #      #    #     #     #######    #      #    ###########
+#           #      #    #     #           #    #      #         #
+#            ######     #     #     ######     #      #         #
+
+
+###################################
+# MESSAGE OPTIONS FOR EACH MODULE #
+###################################
+messages:
+  ban:
+    success_silent: "&a%player% was &esilently&a permanently banned by &c%sender%"
+    success_public: "&a%player% was permanently banned by &c%sender%"
+  tempban:
+    success_silent: "&a%player% was &esilently&a temporarily banned by &c%sender% for &e%time%"
+    success_public: "&a%player% was temporarily banned by &c%sender% for &e%time%"
+  unban:
+    success_silent: "&a%player% was &esilently&a unbanned by &c%sender%"
+    success_public: "&a%player% was unbanned by &c%sender%"
+  mute:
+    success_silent: "&a%player% was &esilently&a permanently muted by &c%sender%"
+    success_public: "&a%player% was permanently muted by &c%sender%"
+  check:

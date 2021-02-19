@@ -1,0 +1,23 @@
+name: PunishmentPlus
+version: 1.0
+author: xWand
+description: The best punishment plugin for your server
+main: dev.xWand.PunishmentPlus.Main
+
+commands:
+  ban:
+    usage: /<command>
+    description: Ban a player permanently
+  unban:
+    usage: /<command>
+    description: Unban a player
+  check:
+    usage: /<command>
+    description: Check a player's recent punishment
+  tempban:
+    usage: /<command>
+    description: Ban a player temporarily
+    aliases: [tempban, tban]
+  mute:
+    usage: /<command>
+    description: Mute a player permanently
