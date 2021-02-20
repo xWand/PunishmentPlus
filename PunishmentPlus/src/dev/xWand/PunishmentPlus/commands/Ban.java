@@ -1,6 +1,8 @@
 package dev.xWand.PunishmentPlus.commands;
 
+import dev.xWand.PunishmentPlus.Main;
 import dev.xWand.PunishmentPlus.playerdata.PlayerData;
+import dev.xWand.PunishmentPlus.utilities.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -11,9 +13,11 @@ import org.bukkit.entity.Player;
 
 public class Ban implements CommandExecutor {
 
+    Main p = Main.getPlugin(Main.class);
+
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (label.equalsIgnoreCase("ban")) {
-            if (!(sender instanceof Player) || sender.isOp()) {
+            if (!(sender instanceof Player) || sender.isOp() || sender.hasPermission(Utils.banPerm())) {
                 if (args.length == 0) {
                     return true;
                 }
@@ -33,33 +37,53 @@ public class Ban implements CommandExecutor {
                         return true;
                     }
                     // File Action (save data)
-                    PlayerData data = new PlayerData(op.getUniqueId());
-                    data.setBanned(true, sender.getName(), reason);
-                    data.saveData(data.conf, data.f);
+
 
 
                     // Messages
-                    for (Player all : Bukkit.getOnlinePlayers()) {
-                        if (all.isOp()) {
-                            all.sendMessage(ChatColor.GREEN + op.getName() + " was banned by " + ChatColor.RED + sender.getName() + ChatColor.GREEN + ".");
+                    if (reason.contains("-s")) {
+                        for (Player all : Bukkit.getOnlinePlayers()) {
+                            if (all.isOp()) {
+                                all.sendMessage(ChatColor.translateAlternateColorCodes('&',p.getConfig().getString("messages.ban.success_silent").replace("%player%", op.getName()).replace("%sender%", sender.getName()).replace("%time%", "")));
+                                reason = reason.replace("-s", "");
+                            }
+                        }
+                    } else if (reason.contains("-p") || !reason.contains("-s")) {
+                        for (Player all : Bukkit.getOnlinePlayers()) {
+                            all.sendMessage(ChatColor.translateAlternateColorCodes('&',p.getConfig().getString("messages.ban.success_public").replace("%player%", op.getName()).replace("%sender%", sender.getName()).replace("%time%", "")));
+                            reason = reason.replace("-p", "");
                         }
                     }
+                    PlayerData data = new PlayerData(op.getUniqueId());
+                    data.setBanned(true, sender.getName(), reason);
+                    data.saveData(data.conf, data.f);
                     return true;
                 }
                 // File Action (save data)
-                PlayerData data = new PlayerData(target.getUniqueId());
-                data.setBanned(true, sender.getName(), reason);
-                data.saveData(data.conf, data.f);
 
 
                 // Messages
                 target.kickPlayer(ChatColor.RED + "Your account has been permanently suspended from this server.");
-                for (Player all : Bukkit.getOnlinePlayers()) {
-                    if (all.isOp()) {
-                        all.sendMessage(ChatColor.GREEN + target.getName() + " was banned by " + ChatColor.RED + sender.getName() + ChatColor.GREEN + ".");
+                if (reason.contains("-s")) {
+                    for (Player all : Bukkit.getOnlinePlayers()) {
+                        if (all.isOp()) {
+                            all.sendMessage(ChatColor.translateAlternateColorCodes('&',p.getConfig().getString("messages.ban.success_silent").replace("%player%", target.getName()).replace("%sender%", sender.getName()).replace("%time%", "")));
+                            reason = reason.replace("-s", "");
+                        }
+                    }
+                } else if (reason.contains("-p") || !reason.contains("-s")) {
+                    for (Player all : Bukkit.getOnlinePlayers()) {
+                        all.sendMessage(ChatColor.translateAlternateColorCodes('&',p.getConfig().getString("messages.ban.success_public").replace("%player%", target.getName()).replace("%sender%", sender.getName()).replace("%time%", "")));
+                        reason = reason.replace("-p", "");
                     }
                 }
+                PlayerData data = new PlayerData(target.getUniqueId());
+                data.setBanned(true, sender.getName(), reason);
+                data.saveData(data.conf, data.f);
+                return true;
             }
+            Utils.noPerms(sender);
+            return true;
         }
         return true;
     }

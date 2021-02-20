@@ -40,6 +40,17 @@ public class PlayerData {
         saveData(conf, f);
     }
 
+    public void setTempmuted(boolean banned, String executor, String reason, long millis) {
+        conf.set("muteData.isActive", banned);
+        conf.set("muteData.executor", executor);
+        conf.set("muteData.reason", reason);
+        conf.set("muteData.when", System.currentTimeMillis()/1000);
+        conf.set("muteData.expires", (System.currentTimeMillis()/1000) + millis);
+        saveData(conf, f);
+    }
+
+
+
     public boolean isMuted() {
         return conf.getBoolean("muteData.isActive");
     }
@@ -104,7 +115,11 @@ public class PlayerData {
     }
 
     public String getReason() {
-        return conf.getString("banData.reason");
+        try {
+            return conf.getString("banData.reason");
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     public long getMillis() {

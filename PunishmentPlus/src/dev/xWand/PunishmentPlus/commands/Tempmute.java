@@ -11,14 +11,14 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class Tempban implements CommandExecutor {
+public class Tempmute implements CommandExecutor {
 
     PlayerData data;
     Main p = Main.getPlugin(Main.class);
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (label.equalsIgnoreCase("tempban") || label.equalsIgnoreCase("tban")) {
-            if (!(sender instanceof Player) || sender.isOp() || sender.hasPermission(Utils.tempbanPerm())) {
+        if (label.equalsIgnoreCase("tempmute") || label.equalsIgnoreCase("tmute")) {
+            if (!(sender instanceof Player) || sender.isOp() || sender.hasPermission(Utils.tempmutePerm())) {
                 if (args.length >= 3) {
                     String format = args[1].substring((int) args[1].chars().count() - 1, (int) args[1].chars().count());
                     int duration = Integer.parseInt(args[1].substring(0, (int) args[1].chars().count() - 1));
@@ -55,9 +55,9 @@ public class Tempban implements CommandExecutor {
                     }
 
                     String reason = "";
-                     for (int i = 2; i < args.length; i++) {
-                         reason = reason + args[i] + " ";
-                     }
+                    for (int i = 2; i < args.length; i++) {
+                        reason = reason + args[i] + " ";
+                    }
 
 
                     Player target = Bukkit.getPlayer(args[0]);
@@ -77,45 +77,46 @@ public class Tempban implements CommandExecutor {
                         if (reason.contains("-s")) {
                             for (Player all : Bukkit.getOnlinePlayers()) {
                                 if (all.isOp()) {
-                                    all.sendMessage(ChatColor.translateAlternateColorCodes('&', p.getConfig().getString("messages.tempban.success_silent").replace("%player%", op.getName()).replace("%sender%", sender.getName()).replace("%time%", Utils.formatTime((int) time))));
+                                    all.sendMessage(ChatColor.translateAlternateColorCodes('&', p.getConfig().getString("messages.tempmute.success_silent").replace("%player%", op.getName()).replace("%sender%", sender.getName()).replace("%time%", Utils.formatTime((int) time))));
                                     reason = reason.replace("-s", "");
                                 }
                             }
                         } else if (reason.contains("-p") || !reason.contains("-s")) {
                             for (Player all : Bukkit.getOnlinePlayers()) {
-                                all.sendMessage(ChatColor.translateAlternateColorCodes('&', p.getConfig().getString("messages.tempban.success_public").replace("%player%", op.getName()).replace("%sender%", sender.getName()).replace("%time%", Utils.formatTime((int) time))));
+                                all.sendMessage(ChatColor.translateAlternateColorCodes('&', p.getConfig().getString("messages.tempmute.success_public").replace("%player%", op.getName()).replace("%sender%", sender.getName()).replace("%time%", Utils.formatTime((int) time))));
                                 reason = reason.replace("-p", "");
                             }
                         }
-                        data.setTempbanned(true, sender.getName(), reason, time);
+                        data.setTempmuted(true, sender.getName(), reason.trim(), time);
                         data.saveData(data.conf, data.f);
+                        target.sendMessage(ChatColor.RED + p.getConfig().getString("messages.tempmute.target_message"));
                         return true;
                     }
                     // TAKE ACTION HERE
                     data = new PlayerData(target.getUniqueId());
-                    target.kickPlayer(ChatColor.translateAlternateColorCodes('&', "&cYour account has been temporarily suspended from this server.\n\nExpires: " + Utils.formatTime((int) time)));
-                    data.setTempbanned(true, sender.getName(), reason.trim(), time);
-
 
                     // MESSAGES
                     if (reason.contains("-s")) {
                         for (Player all : Bukkit.getOnlinePlayers()) {
                             if (all.isOp()) {
-                                all.sendMessage(ChatColor.translateAlternateColorCodes('&', p.getConfig().getString("messages.tempban.success_silent").replace("%player%", target.getName()).replace("%sender%", sender.getName()).replace("%time%", Utils.formatTime((int) time))));
+                                all.sendMessage(ChatColor.translateAlternateColorCodes('&', p.getConfig().getString("messages.tempmute.success_silent").replace("%player%", target.getName()).replace("%sender%", sender.getName()).replace("%time%", Utils.formatTime((int) time))));
                                 reason = reason.replace("-s", "");
                             }
                         }
                     } else if (reason.contains("-p") || !reason.contains("-s")) {
                         for (Player all : Bukkit.getOnlinePlayers()) {
-                            all.sendMessage(ChatColor.translateAlternateColorCodes('&', p.getConfig().getString("messages.tempban.success_public").replace("%player%", target.getName()).replace("%sender%", sender.getName()).replace("%time%", Utils.formatTime((int) time))));
+                            all.sendMessage(ChatColor.translateAlternateColorCodes('&', p.getConfig().getString("messages.tempmute.success_public").replace("%player%", target.getName()).replace("%sender%", sender.getName()).replace("%time%", Utils.formatTime((int) time))));
                             reason = reason.replace("-p", "");
                         }
                     }
+                    data.setTempmuted(true, sender.getName(), reason.trim(), time);
+                    target.sendMessage(ChatColor.translateAlternateColorCodes('&', p.getConfig().getString("messages.tempmute.target_message").replace("%reason%", reason)).replace("%sender%", sender.getName()).replace("%time%", Utils.formatTime((int) time)));
+
+                    return true;
                 }
             }
-            Utils.noPerms(sender);
-            return true;
         }
+        Utils.noPerms(sender);
         return true;
     }
 }

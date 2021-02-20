@@ -1,6 +1,8 @@
 package dev.xWand.PunishmentPlus.commands;
 
+import dev.xWand.PunishmentPlus.Main;
 import dev.xWand.PunishmentPlus.playerdata.PlayerData;
+import dev.xWand.PunishmentPlus.utilities.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -11,10 +13,12 @@ import org.bukkit.entity.Player;
 
 public class Mute implements CommandExecutor {
 
+    Main p = Main.getPlugin(Main.class);
+
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (label.equalsIgnoreCase("mute")) {
-            if (!(sender instanceof Player) || sender.isOp()) {
-                if (args.length >= 0) {
+            if (!(sender instanceof Player) || sender.isOp() || sender.hasPermission(Utils.mutePerm())) {
+                if (args.length > 0) {
                     String reason = "";
 
                     if (args.length >= 1) {
@@ -33,18 +37,48 @@ public class Mute implements CommandExecutor {
                             return true;
                         }
                         PlayerData data = new PlayerData(op.getUniqueId());
-                        data.setMuted(true, sender.getName(), reason.trim());
 
-                        sender.sendMessage(ChatColor.GREEN + op.getName() + " was permanently muted by " + ChatColor.RED + sender.getName() + ChatColor.GREEN + ".");
+
+                        if (reason.contains("-s")) {
+                            reason = reason.replace("-s", "");
+                            for (Player all : Bukkit.getOnlinePlayers()) {
+                                if (all.hasPermission("punishmentplus.alert")) {
+                                    all.sendMessage(ChatColor.GREEN + op.getName() + " was" + ChatColor.YELLOW + " silently " + ChatColor.GREEN + "permanently " + "muted by " + ChatColor.RED + sender.getName() + ChatColor.GREEN + ".");
+                                }
+                            }
+                        }else if (reason.contains("-p") || !reason.contains("-s")) {
+                            for (Player all : Bukkit.getOnlinePlayers()) {
+                                all.sendMessage(ChatColor.translateAlternateColorCodes('&',p.getConfig().getString("messages.mute.success_public").replace("%player%", op.getName()).replace("%sender%", sender.getName()).replace("%time%", "")));
+                                reason = reason.replace("-p", "");
+                            }
+                        }
+                        data.setMuted(true, sender.getName(), reason.trim());
                         return true;
                     }
+
+
+                    if (reason.contains("-s")) {
+                        for (Player all : Bukkit.getOnlinePlayers()) {
+                            if (all.isOp()) {
+                                all.sendMessage(ChatColor.translateAlternateColorCodes('&', p.getConfig().getString("messages.mute.success_silent").replace("%player%", target.getName()).replace("%sender%", sender.getName()).replace("%time%", "")));
+                                reason = reason.replace("-s", "");
+                            }
+                        }
+                    } else if (reason.contains("-p") || !reason.contains("-s")) {
+                        for (Player all : Bukkit.getOnlinePlayers()) {
+                            all.sendMessage(ChatColor.translateAlternateColorCodes('&',p.getConfig().getString("messages.mute.success_public").replace("%player%", target.getName()).replace("%sender%", sender.getName()).replace("%time%", "")));
+                            reason = reason.replace("-p", "");
+                        }
+                    }
+
                     PlayerData data = new PlayerData(target.getUniqueId());
                     data.setMuted(true, sender.getName(), reason.trim());
                     target.sendMessage(ChatColor.RED + "You have been permanently muted.\nReason: " + data.getMuteReason());
-                    sender.sendMessage(ChatColor.GREEN + target.getName() + " was permanently muted by " + ChatColor.RED + sender.getName() + ChatColor.GREEN + ".");
                     return true;
                 }
             }
+            Utils.noPerms(sender);
+            return true;
         }
         return true;
     }

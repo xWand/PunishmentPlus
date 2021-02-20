@@ -1,8 +1,51 @@
 package dev.xWand.PunishmentPlus.utilities;
 
+import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
 import java.util.Calendar;
 
 public class Utils {
+
+    public static void noPerms(Player player) {
+        if (!player.hasPermission(tempmutePerm()) || !player.hasPermission(tempbanPerm()) || !player.hasPermission(banPerm()) || !player.hasPermission(unmutePerm()) || !player.hasPermission(unbanPerm()) || !player.hasPermission(mutePerm())) {
+            player.sendMessage(ChatColor.RED + "You do not have permission to run this command.");
+        }
+    }
+    public static void noPerms(CommandSender player) {
+        if (!player.hasPermission(tempmutePerm()) || !player.hasPermission(tempbanPerm()) || !player.hasPermission(banPerm()) || !player.hasPermission(unmutePerm()) || !player.hasPermission(unbanPerm()) || !player.hasPermission(mutePerm())) {
+            player.sendMessage(ChatColor.RED + "You do not have permission to run this command.");
+        }
+    }
+
+    public static boolean hasPerm(Player player) {
+        return player.hasPermission("punishmentplus.alert");
+    }
+
+    public static String tempbanPerm() {
+        return "punishmentplus.tempban";
+    }
+
+    public static String banPerm() {
+        return "punishmentplus.ban";
+    }
+
+    public static String mutePerm() {
+        return "punishmentplus.mute";
+    }
+
+    public static String tempmutePerm() {
+        return "punishmentplus.tempmute";
+    }
+
+    public static String unmutePerm() {
+        return "punishmentplus.unmute";
+    }
+
+    public static String unbanPerm() {
+        return "punishmentplus.unban";
+    }
 
     public String millisToDate(long timeStamp) {
         Calendar calendar = Calendar.getInstance();

@@ -1,5 +1,6 @@
 package dev.xWand.PunishmentPlus.commands;
 
+import dev.xWand.PunishmentPlus.Main;
 import dev.xWand.PunishmentPlus.playerdata.PlayerData;
 import dev.xWand.PunishmentPlus.utilities.Utils;
 import org.bukkit.Bukkit;
@@ -18,6 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Check implements CommandExecutor {
+
+    Main p = Main.getPlugin(Main.class);
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (label.equalsIgnoreCase("check")) {
@@ -47,12 +50,15 @@ public class Check implements CommandExecutor {
                 }
             }
             PlayerData data = new PlayerData(target.getUniqueId());
+            if (data.getReason() == null || data.getReason().equalsIgnoreCase("null")) {
+                player.sendMessage(ChatColor.YELLOW + target.getName() + ChatColor.RED + " does not have any recent punishments.");
+                return true;
+            }
             player.sendMessage(ChatColor.GREEN + "Searching for recent punishment for " + ChatColor.YELLOW + target.getName() + ChatColor.GREEN + " ...");
             if (data.exists()) {
                 openInventory(player, target);
                 player.sendMessage(ChatColor.GREEN + "Successfully found recent punishment.");
-            } else {
-                player.sendMessage(data.f.exists() + "");
+            } else if (data.getReason() == null || data.getReason().equalsIgnoreCase("null")){
                 player.sendMessage(ChatColor.YELLOW + target.getName() + ChatColor.RED + " does not have any recent punishments.");
                 return true;
             }
@@ -85,7 +91,7 @@ public class Check implements CommandExecutor {
         meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&c&lBan"));
         List<String> lore = new ArrayList<>();
         lore.add(ChatColor.translateAlternateColorCodes('&', "&eActive: &7" + data.isBanned()));
-        lore.add(ChatColor.translateAlternateColorCodes('&', "&eReason: &7" + data.getReason().trim()));
+        lore.add(ChatColor.translateAlternateColorCodes('&', "&eReason: &7" + data.getReason()));
         lore.add(ChatColor.translateAlternateColorCodes('&', "&eExecutor: &7" + data.getExecutor()));
         lore.add(ChatColor.translateAlternateColorCodes('&', "&eWhen: &7" + new Utils().millisToDate(data.getMillis()*1000)));
         meta.setLore(lore);

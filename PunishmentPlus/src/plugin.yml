@@ -21,3 +21,12 @@ commands:
   mute:
     usage: /<command>
     description: Mute a player permanently
+  pmpreload:
+    usage: /<command>
+    description: Reload the configuration
+  tempmute:
+    usage: /<command>
+    description: Mute a player temporarily
+  unmute:
+    usage: /<command>
+    description: Unmute a player

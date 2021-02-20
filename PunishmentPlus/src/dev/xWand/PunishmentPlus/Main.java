@@ -24,6 +24,9 @@ public class Main extends JavaPlugin {
         getCommand("check").setExecutor(new Check());
         getCommand("tempban").setExecutor(new Tempban());
         getCommand("mute").setExecutor(new Mute());
+        getCommand("pmpreload").setExecutor(new ReloadConfig());
+        getCommand("tempmute").setExecutor(new Tempmute());
+        getCommand("unmute").setExecutor(new Unmute());
 
         Bukkit.getLogger().info(prefix + " Loading files...");
         saveDefaultConfig();
