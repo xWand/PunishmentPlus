@@ -21,9 +21,10 @@ public class onChat implements Listener {
         if (data.isMuted() && data.getMuteExpires() < (System.currentTimeMillis()/1000) && data.getMuteExpires() != 0) {
             return;
         }
-        if (data.isMuted()) {
+        if (data.isMuted() && !(data.getMuteExpires() == 0)) {
             event.setCancelled(true);
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', p.getConfig().getString("messages.tempmute.sender_message_fail").replace("%reason%", data.getMuteReason()).replace("%sender%", data.getMuteExecutor()).replace("%time%", Utils.formatTime((int) ((int) (data.getMuteExpires()-System.currentTimeMillis()/1000))))));
+            return;
         }
         if (data.isMuted() && data.getMuteExpires() == 0) {
             event.setCancelled(true);

@@ -9,7 +9,10 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.MemorySection;
 import org.bukkit.entity.Player;
+
+import java.util.List;
 
 public class Tempmute implements CommandExecutor {
 
@@ -59,6 +62,28 @@ public class Tempmute implements CommandExecutor {
                         reason = reason + args[i] + " ";
                     }
 
+                    if (args[2].startsWith("@")) {
+                        try {
+                            MemorySection ms = (MemorySection) p.getConfig().getConfigurationSection("predefined_reasons").get(args[2].replace("@", "").trim());
+                            ms.getName();
+                            sender.sendMessage(ms.getName());
+                            List<String> text = ms.getStringList("text");
+                            for (int i = 0; i < text.size(); i++) {
+                                if (i > 0) {
+                                    reason = reason + " " + text.get(i).replace("@" + ms.getName(), "");
+                                } else {
+                                    reason = reason + text.get(i).replace("@" + ms.getName(), "");
+                                }
+                                reason = reason.replace("@" + ms.getName(), "");
+                            }
+                        } catch (NullPointerException e) {
+                            sender.sendMessage("Unable to find that layout.");
+                            return true;
+                        }
+                    }
+
+                    reason = reason.replace(args[1], "");
+
 
                     Player target = Bukkit.getPlayer(args[0]);
                     if (target == null) {
@@ -76,7 +101,7 @@ public class Tempmute implements CommandExecutor {
 
                         if (reason.contains("-s")) {
                             for (Player all : Bukkit.getOnlinePlayers()) {
-                                if (all.isOp()) {
+                                if (all.isOp() || Utils.hasPerm(all)) {
                                     all.sendMessage(ChatColor.translateAlternateColorCodes('&', p.getConfig().getString("messages.tempmute.success_silent").replace("%player%", op.getName()).replace("%sender%", sender.getName()).replace("%time%", Utils.formatTime((int) time))));
                                     reason = reason.replace("-s", "");
                                 }
@@ -89,7 +114,11 @@ public class Tempmute implements CommandExecutor {
                         }
                         data.setTempmuted(true, sender.getName(), reason.trim(), time);
                         data.saveData(data.conf, data.f);
-                        target.sendMessage(ChatColor.RED + p.getConfig().getString("messages.tempmute.target_message"));
+                        return true;
+                    }
+
+                    if (target.hasPermission("punishmentplus.exempt")) {
+                        sender.sendMessage(ChatColor.RED + "You cannot punish this player.");
                         return true;
                     }
                     // TAKE ACTION HERE
@@ -98,7 +127,7 @@ public class Tempmute implements CommandExecutor {
                     // MESSAGES
                     if (reason.contains("-s")) {
                         for (Player all : Bukkit.getOnlinePlayers()) {
-                            if (all.isOp()) {
+                            if (all.isOp() || Utils.hasPerm(all)) {
                                 all.sendMessage(ChatColor.translateAlternateColorCodes('&', p.getConfig().getString("messages.tempmute.success_silent").replace("%player%", target.getName()).replace("%sender%", sender.getName()).replace("%time%", Utils.formatTime((int) time))));
                                 reason = reason.replace("-s", "");
                             }
@@ -110,10 +139,12 @@ public class Tempmute implements CommandExecutor {
                         }
                     }
                     data.setTempmuted(true, sender.getName(), reason.trim(), time);
-                    target.sendMessage(ChatColor.translateAlternateColorCodes('&', p.getConfig().getString("messages.tempmute.target_message").replace("%reason%", reason)).replace("%sender%", sender.getName()).replace("%time%", Utils.formatTime((int) time)));
+                    target.sendMessage(ChatColor.translateAlternateColorCodes('&', p.getConfig().getString("messages.tempmute.target_message").replace("%reason%", reason.trim())).replace("%sender%", sender.getName()).replace("%time%", Utils.formatTime((int) time)));
 
                     return true;
                 }
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', p.getConfig().getString("messages.invalid_syntax").replace("%command%", "/tempmute <player> <time> <reason> <modifiers>")));
+                return true;
             }
         }
         Utils.noPerms(sender);

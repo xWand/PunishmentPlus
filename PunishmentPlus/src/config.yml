@@ -11,7 +11,15 @@
 ###################################
 # MESSAGE OPTIONS FOR EACH MODULE #
 ###################################
+predefined_reasons:
+  example:
+    # The name you want to call the reason by in the command
+    # Example: /ban xWand @example
+    text:
+      - "You have been caught cheating!"
+      - "This ban is permanent. Please do not continue."
 messages:
+  invalid_syntax: "&cInvalid syntax! Usage: &e%command%"
   ban:
     success_silent: "&a%player% was &esilently&a permanently banned by &c%sender%"
     success_public: "&a%player% was permanently banned by &c%sender%"

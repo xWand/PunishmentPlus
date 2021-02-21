@@ -4,10 +4,15 @@ import dev.xWand.PunishmentPlus.commands.*;
 import dev.xWand.PunishmentPlus.events.InventoryMove;
 import dev.xWand.PunishmentPlus.events.onChat;
 import dev.xWand.PunishmentPlus.events.onJoin;
+import net.dv8tion.jda.api.AccountType;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Activity;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import javax.security.auth.login.LoginException;
 import java.util.UUID;
 
 public class Main extends JavaPlugin {
@@ -36,7 +41,9 @@ public class Main extends JavaPlugin {
         pm.registerEvents(new InventoryMove(), this);
         pm.registerEvents(new onJoin(), this);
         pm.registerEvents(new onChat(), this);
+
     }
+
 
     @Override
     public void onDisable() {

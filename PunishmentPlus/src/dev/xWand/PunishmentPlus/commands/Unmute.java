@@ -29,19 +29,19 @@ public class Unmute implements CommandExecutor {
                         PlayerData data = new PlayerData(op.getUniqueId());
                         if (data.isMuted()) {
                             data.setTempmuted(false, "", "", 0);
-                        }
-                        if (args.length > 1) {
-                            if (args[1].contains("-s")) {
-                                for (Player all : Bukkit.getOnlinePlayers()) {
-                                    if (Utils.hasPerm(all)) {
-                                        all.sendMessage(ChatColor.translateAlternateColorCodes('&', p.getConfig().getString("messages.unmute.success_silent").replace("%player%", op.getName()).replace("%sender%", sender.getName())));
+                            if (args.length > 1) {
+                                if (args[1].contains("-s")) {
+                                    for (Player all : Bukkit.getOnlinePlayers()) {
+                                        if (Utils.hasPerm(all)) {
+                                            all.sendMessage(ChatColor.translateAlternateColorCodes('&', p.getConfig().getString("messages.unmute.success_silent").replace("%player%", op.getName()).replace("%sender%", sender.getName())));
+
+                                        }
+                                    }
+                                } else {
+                                    for (Player all : Bukkit.getOnlinePlayers()) {
+                                        all.sendMessage(ChatColor.translateAlternateColorCodes('&', p.getConfig().getString("messages.unmute.success_public").replace("%player%", op.getName()).replace("%sender%", sender.getName())));
 
                                     }
-                                }
-                            } else {
-                                for (Player all : Bukkit.getOnlinePlayers()) {
-                                    all.sendMessage(ChatColor.translateAlternateColorCodes('&', p.getConfig().getString("messages.unmute.success_public").replace("%player%", op.getName()).replace("%sender%", sender.getName())));
-
                                 }
                             }
                         }
@@ -49,22 +49,25 @@ public class Unmute implements CommandExecutor {
                     PlayerData data = new PlayerData(target.getUniqueId());
                     if (data.isMuted()) {
                         data.setTempmuted(false, "", "", 0);
-                    }
-                    if (args.length > 1) {
-                        if (args[1].contains("-s")) {
-                            for (Player all : Bukkit.getOnlinePlayers()) {
-                                if (Utils.hasPerm(all)) {
-                                    all.sendMessage(ChatColor.translateAlternateColorCodes('&', p.getConfig().getString("messages.unmute.success_silent").replace("%player%", target.getName()).replace("%sender%", sender.getName())));
+                        if (args.length > 1) {
+                            if (args[1].contains("-s")) {
+                                for (Player all : Bukkit.getOnlinePlayers()) {
+                                    if (Utils.hasPerm(all)) {
+                                        all.sendMessage(ChatColor.translateAlternateColorCodes('&', p.getConfig().getString("messages.unmute.success_silent").replace("%player%", target.getName()).replace("%sender%", sender.getName())));
+                                    }
                                 }
-                            }
-                        } else {
-                            for (Player all : Bukkit.getOnlinePlayers()) {
-                                all.sendMessage(ChatColor.translateAlternateColorCodes('&', p.getConfig().getString("messages.unmute.success_public").replace("%player%", target.getName()).replace("%sender%", sender.getName())));
+                            } else {
+                                for (Player all : Bukkit.getOnlinePlayers()) {
+                                    all.sendMessage(ChatColor.translateAlternateColorCodes('&', p.getConfig().getString("messages.unmute.success_public").replace("%player%", target.getName()).replace("%sender%", sender.getName())));
 
+                                }
                             }
                         }
                     }
+                    return true;
                 }
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', p.getConfig().getString("messages.invalid_syntax").replace("%command%", "/unmute <player> <modifiers>")));
+                return true;
             }
             Utils.noPerms(sender);
             return true;

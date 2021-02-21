@@ -9,7 +9,10 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.MemorySection;
 import org.bukkit.entity.Player;
+
+import java.util.List;
 
 public class Ban implements CommandExecutor {
 
@@ -19,6 +22,7 @@ public class Ban implements CommandExecutor {
         if (label.equalsIgnoreCase("ban")) {
             if (!(sender instanceof Player) || sender.isOp() || sender.hasPermission(Utils.banPerm())) {
                 if (args.length == 0) {
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', p.getConfig().getString("messages.invalid_syntax").replace("%command%", "/ban <player> <reason> <modifiers>")));
                     return true;
                 }
                 String reason = "";
@@ -27,6 +31,27 @@ public class Ban implements CommandExecutor {
                         reason = reason + args[i] + " ";
                     }
                 }
+
+                if (args[1].startsWith("@")) {
+                    try {
+                        MemorySection ms = (MemorySection) p.getConfig().getConfigurationSection("predefined_reasons").get(args[1].replace("@", "").trim());
+                        ms.getName();
+                        sender.sendMessage(ms.getName());
+                        List<String> text = ms.getStringList("text");
+                        for (int i = 0; i < text.size(); i++) {
+                            if (i > 0) {
+                                reason = reason + " " + text.get(i).replace("@" + ms.getName(), "");
+                            } else {
+                                reason = reason + text.get(i).replace("@" + ms.getName(), "");
+                            }
+                            reason = reason.replace("@" + ms.getName(), "");
+                        }
+                    } catch (NullPointerException e) {
+                        sender.sendMessage("Unable to find that layout.");
+                        return true;
+                    }
+                }
+
                 // Online player
                 Player target = Bukkit.getPlayer(args[0]);
                 if (target == null) {
@@ -36,6 +61,10 @@ public class Ban implements CommandExecutor {
                         // Target does not exist at all
                         return true;
                     }
+
+                    // Layouts
+
+
                     // File Action (save data)
 
 
@@ -43,7 +72,7 @@ public class Ban implements CommandExecutor {
                     // Messages
                     if (reason.contains("-s")) {
                         for (Player all : Bukkit.getOnlinePlayers()) {
-                            if (all.isOp()) {
+                            if (all.isOp() || Utils.hasPerm(all)) {
                                 all.sendMessage(ChatColor.translateAlternateColorCodes('&',p.getConfig().getString("messages.ban.success_silent").replace("%player%", op.getName()).replace("%sender%", sender.getName()).replace("%time%", "")));
                                 reason = reason.replace("-s", "");
                             }
@@ -61,12 +90,16 @@ public class Ban implements CommandExecutor {
                 }
                 // File Action (save data)
 
+                if (target.hasPermission("punishmentplus.exempt")) {
+                    sender.sendMessage(ChatColor.RED + "You cannot punish this player.");
+                    return true;
+                }
 
                 // Messages
                 target.kickPlayer(ChatColor.RED + "Your account has been permanently suspended from this server.");
                 if (reason.contains("-s")) {
                     for (Player all : Bukkit.getOnlinePlayers()) {
-                        if (all.isOp()) {
+                        if (all.isOp() || Utils.hasPerm(all)) {
                             all.sendMessage(ChatColor.translateAlternateColorCodes('&',p.getConfig().getString("messages.ban.success_silent").replace("%player%", target.getName()).replace("%sender%", sender.getName()).replace("%time%", "")));
                             reason = reason.replace("-s", "");
                         }

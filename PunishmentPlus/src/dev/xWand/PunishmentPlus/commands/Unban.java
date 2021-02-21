@@ -38,7 +38,7 @@ public class Unban implements CommandExecutor {
 
                         if (reason.contains("-s")) {
                             for (Player all : Bukkit.getOnlinePlayers()) {
-                                if (all.isOp()) {
+                                if (all.isOp() || Utils.hasPerm(all)) {
                                     all.sendMessage(ChatColor.translateAlternateColorCodes('&',p.getConfig().getString("messages.unban.success_silent").replace("%player%", target.getName()).replace("%sender%", sender.getName()).replace("%time%", "")));
                                 }
                             }
@@ -48,8 +48,13 @@ public class Unban implements CommandExecutor {
                                 reason = reason.replace("-p", "");
                             }
                         }
+                        return true;
                     }
+                    sender.sendMessage(ChatColor.RED + "That player is not banned.");
+                    return true;
                 }
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', p.getConfig().getString("messages.invalid_syntax").replace("%command%", "/unban <player> <modifiers>")));
+                return true;
             }
             Utils.noPerms(sender);
             return true;

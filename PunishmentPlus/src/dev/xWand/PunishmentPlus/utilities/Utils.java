@@ -23,6 +23,11 @@ public class Utils {
         return player.hasPermission("punishmentplus.alert");
     }
 
+    public static boolean hasPerm(CommandSender player) {
+        return player.hasPermission("punishmentplus.alert");
+    }
+
+
     public static String tempbanPerm() {
         return "punishmentplus.tempban";
     }
